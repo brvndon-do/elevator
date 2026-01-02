@@ -18,6 +18,7 @@ class Elevator
     public:
         Elevator();
         ~Elevator();
+        void send(const Message& message);
 
     private:
         void run();

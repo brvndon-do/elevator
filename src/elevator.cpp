@@ -13,6 +13,11 @@ Elevator::~Elevator()
         thread_.join();
 }
 
+void Elevator::send(const Message& message)
+{
+    mailbox_.push(message);
+}
+
 void Elevator::run()
 {
     while (running_)
