@@ -19,6 +19,7 @@ class Elevator
         Elevator();
         ~Elevator();
         void send(const Message& message);
+        int currentFloor() const;
 
     private:
         void run();

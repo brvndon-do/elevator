@@ -7,6 +7,8 @@ struct AddStop
     int floor;
 };
 
-struct Shutdown {};
+struct Step { };
 
-using Message = std::variant<AddStop, Shutdown>;
+struct Shutdown { };
+
+using Message = std::variant<AddStop, Step, Shutdown>;

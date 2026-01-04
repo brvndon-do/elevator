@@ -4,13 +4,23 @@
 
 int main()
 {
+    const int TICKS = 100;
+
     Elevator* mainElevator = new Elevator();
 
-    mainElevator->send(AddStop { .floor = 2 });
-    mainElevator->send(AddStop { .floor = 1 });
-    mainElevator->send(AddStop { .floor = 3 });
-    mainElevator->send(AddStop { .floor = 4 });
-    mainElevator->send(Shutdown {});
+    for (int i = 0; i < TICKS; i++)
+    {
+        if (i == 2)
+            mainElevator->send(AddStop { .floor = 5 });
+        if (i == 5)
+            mainElevator->send(AddStop { .floor = 3 });
+        if (i == 10)
+            mainElevator->send(AddStop { .floor = 7 });
+
+        mainElevator->send(Step { });
+    }
+
+    mainElevator->send(Shutdown { });
 
     delete mainElevator;
 
