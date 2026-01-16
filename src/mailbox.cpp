@@ -4,7 +4,7 @@ void Mailbox::push(const Message& message)
 {
     std::lock_guard<std::mutex> lock (queue_mutex_);
     queue_.push(message);
-    queue_cond_.notify_one();    
+    queue_cond_.notify_one();
 }
 
 Message Mailbox::pop_block()
@@ -14,6 +14,6 @@ Message Mailbox::pop_block()
 
     Message message = queue_.front();
     queue_.pop();
-    
+
     return message;
 }

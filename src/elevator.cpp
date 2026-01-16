@@ -2,23 +2,50 @@
 
 #include "elevator.h"
 
-Direction calculateDirection(int currentFloor, const std::set<int>& stops)
+Direction calculateCurrentDirection(
+    int currentFloor,
+    const std::set<int>& ascendingStops,
+    const std::set<int, std::greater<int>>& descendingStops
+)
 {
-    if (stops.empty() || stops.count(currentFloor))
-        return Direction::Nil;
-        
-    std::set<int>::const_iterator up = stops.lower_bound(currentFloor);
-    if (up != stops.end() && *up > currentFloor)
+    std::set<int>::const_iterator up = ascendingStops.upper_bound(currentFloor);
+    if (up != ascendingStops.end())
         return Direction::Up;
 
-    if (up != stops.begin())
-    {
-        std::set<int>::const_iterator down = std::prev(up);
-        if (*down < currentFloor)
-            return Direction::Down;
-    }
+    std::set<int>::const_iterator down = descendingStops.upper_bound(currentFloor);
+    if (down != descendingStops.end())
+        return Direction::Down;
 
     return Direction::Nil;
+}
+
+Direction calculateNewDirection(int currentFloor, int requestedFloor)
+{
+    if (currentFloor == requestedFloor)
+        return Direction::Nil;
+
+    return requestedFloor - currentFloor > 0
+        ? Direction::Up
+        : Direction::Down;
+}
+
+void addStop(
+    Direction direction,
+    int floor,
+    std::set<int>& ascendingStops,
+    std::set<int, std::greater<int>>& descendingStops
+)
+{
+    switch (direction)
+    {
+        case Direction::Down:
+            descendingStops.insert(floor);
+        break;
+        case Direction::Up:
+        case Direction::Nil:
+            ascendingStops.insert(floor);
+            break;
+    }
 }
 
 Elevator::Elevator()
@@ -53,13 +80,30 @@ void Elevator::run()
         {
             using T = std::decay_t<decltype(arg)>;
 
-            if constexpr (std::is_same_v<T, AddStop>)
+            if constexpr (std::is_same_v<T, AddCall>)
             {
-                stops_.insert(static_cast<AddStop>(arg).floor);
+                AddCall call = static_cast<AddCall>(arg);
+
+                switch (call.type)
+                {
+                    case CallType::Hall:
+                        {
+                            addStop(call.direction, call.floor, ascendingStops_, descendingStops_);
+                            direction_ = call.direction;
+                        }
+                        break;
+                    case CallType::Car:
+                        {
+                            Direction newDirection = calculateNewDirection(currentFloor_, call.floor);
+                            addStop(newDirection, call.floor, ascendingStops_, descendingStops_);
+                            direction_ = newDirection;
+                        }
+                        break;
+                }
             }
             else if constexpr (std::is_same_v<T, Step>)
             {
-                direction_ = calculateDirection(currentFloor_, stops_);
+                direction_ = calculateCurrentDirection(currentFloor_, ascendingStops_, descendingStops_);
 
                 switch (direction_)
                 {
@@ -73,8 +117,11 @@ void Elevator::run()
                         break;
                 }
 
-                if (stops_.count(currentFloor_))
-                    stops_.erase(currentFloor_);
+                if (ascendingStops_.count(currentFloor_))
+                    ascendingStops_.erase(currentFloor_);
+
+                if (descendingStops_.count(currentFloor_))
+                    descendingStops_.erase(currentFloor_);
 
                 std::println("Elevator is currently on {} floor", currentFloor_);
             }

@@ -6,13 +6,6 @@
 #include "messages.h"
 #include "mailbox.h"
 
-enum class Direction
-{
-    Nil,
-    Up,
-    Down
-};
-
 class Elevator
 {
     public:
@@ -27,7 +20,8 @@ class Elevator
         bool running_ = true;
         int currentFloor_;
         Direction direction_;
-        std::set<int> stops_;
+        std::set<int> ascendingStops_;
+        std::set<int, std::greater<int>> descendingStops_;
         Mailbox mailbox_;
         std::thread thread_;
 };

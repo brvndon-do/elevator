@@ -2,8 +2,18 @@
 
 #include <variant>
 
-struct AddStop
+#include "shared.h"
+
+enum class CallType
 {
+    Hall,
+    Car
+};
+
+struct AddCall
+{
+    CallType type;
+    Direction direction;
     int floor;
 };
 
@@ -11,4 +21,4 @@ struct Step { };
 
 struct Shutdown { };
 
-using Message = std::variant<AddStop, Step, Shutdown>;
+using Message = std::variant<AddCall, Step, Shutdown>;
