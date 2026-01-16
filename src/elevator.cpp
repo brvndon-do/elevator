@@ -53,6 +53,11 @@ Elevator::Elevator()
     thread_ = std::thread (&Elevator::run, this);
 }
 
+Elevator::Elevator(int startingFloor) : Elevator()
+{
+    currentFloor_ = startingFloor;
+}
+
 Elevator::~Elevator()
 {
     mailbox_.push(Shutdown {});

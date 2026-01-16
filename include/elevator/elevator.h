@@ -10,6 +10,7 @@ class Elevator
 {
     public:
         Elevator();
+        Elevator(int startingFloor);
         ~Elevator();
         void send(const Message& message);
         int currentFloor() const;

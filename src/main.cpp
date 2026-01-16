@@ -2,45 +2,60 @@
 
 #include "elevator.h"
 
+struct ScheduledMessage
+{
+    int tick;
+    Message message;
+};
+
 int main()
 {
     const int TICKS = 100;
 
-    Elevator* mainElevator = new Elevator();
+    Elevator* mainElevator = new Elevator(6);
+
+    std::vector<ScheduledMessage> scheduledMessages
+    {
+        { 2, AddCall { 
+                .type = CallType::Hall,
+                .direction = Direction::Up,
+                .floor = 5
+            }
+        },
+        { 2, AddCall { 
+                .type = CallType::Hall,
+                .direction = Direction::Up,
+                .floor = 7
+            }
+        },
+        { 2, AddCall { 
+                .type = CallType::Hall,
+                .direction = Direction::Up,
+                .floor = 9
+            }
+        },
+        { 5, AddCall { 
+                .type = CallType::Hall,
+                .direction = Direction::Down,
+                .floor = 3
+            }
+        },
+        { 10, AddCall { 
+                .type = CallType::Hall,
+                .direction = Direction::Up,
+                .floor = 11
+            }
+        },
+    };
 
     // tick-based simulation
     for (int i = 0; i < TICKS; i++)
     {
-        if (i == 2)
+        for (const auto& message : scheduledMessages)
         {
-            mainElevator->send(AddCall { 
-                .type = CallType::Hall,
-                .direction = Direction::Up,
-                .floor = 5
-            });
-            mainElevator->send(AddCall { 
-                .type = CallType::Hall,
-                .direction = Direction::Up,
-                .floor = 7
-            });
-            mainElevator->send(AddCall { 
-                .type = CallType::Hall,
-                .direction = Direction::Up,
-                .floor = 9
-            });
+            if (message.tick == i)
+                mainElevator->send(message.message);
         }
-        if (i == 5)
-            mainElevator->send(AddCall { 
-                .type = CallType::Hall,
-                .direction = Direction::Down,
-                .floor = 3
-            });
-        if (i == 10)
-            mainElevator->send(AddCall { 
-                .type = CallType::Hall,
-                .direction = Direction::Up,
-                .floor = 11
-            });
 
         mainElevator->send(Step { });
     }
